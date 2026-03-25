@@ -33,7 +33,16 @@
         }
         .header h1 { font-size: 24px; }
         .header .date { font-size: 14px; opacity: 0.9; }
-        .tts-controls { display: flex; gap: 10px; align-items: center; }
+        .tts-controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .voice-select {
+            background: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            max-width: 150px;
+        }
         .tts-btn {
             background: white;
             border: none;
@@ -155,6 +164,9 @@
             </div>
             <div class="tts-controls">
                 <span class="tts-status" id="ttsStatus"></span>
+                <select class="voice-select" id="voiceSelect" onchange="changeVoice()">
+                    <option value="">默认语音</option>
+                </select>
                 <button class="tts-btn play" id="playBtn" onclick="playAll()">🔊 播报全部</button>
                 <button class="tts-btn stop" id="stopBtn" onclick="stopSpeaking()" style="display:none;">⏹️ 停止</button>
             </div>
@@ -180,6 +192,31 @@
         
         let currentNews = null;
         let speaking = false;
+        let currentVoice = null;
+        let voices = [];
+
+        function loadVoices() {
+            voices = window.speechSynthesis.getVoices();
+            const voiceSelect = document.getElementById('voiceSelect');
+            voiceSelect.innerHTML = '<option value="">默认语音</option>';
+            const zhVoices = voices.filter(v => v.lang.includes('zh') || v.lang.includes('cmn'));
+            const otherVoices = voices.filter(v => !v.lang.includes('zh') && !v.lang.includes('cmn'));
+            if (zhVoices.length) {
+                voiceSelect.innerHTML += '<optgroup label="中文语音">';
+                zhVoices.forEach((v, i) => voiceSelect.innerHTML += `<option value="${v.name}">${v.name}</option>`);
+                voiceSelect.innerHTML += '</optgroup>';
+            }
+            if (otherVoices.length) {
+                voiceSelect.innerHTML += '<optgroup label="其他语音">';
+                otherVoices.slice(0, 10).forEach(v => voiceSelect.innerHTML += `<option value="${v.name}">${v.name} (${v.lang})</option>`);
+                voiceSelect.innerHTML += '</optgroup>';
+            }
+        }
+
+        function changeVoice() {
+            const name = document.getElementById('voiceSelect').value;
+            currentVoice = voices.find(v => v.name === name) || null;
+        }
         
         function getTodayDate() {
             const now = new Date();
@@ -286,6 +323,7 @@
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'zh-CN';
             utterance.rate = 0.9;
+            if (currentVoice) utterance.voice = currentVoice;
             
             utterance.onstart = () => {
                 speaking = true;
