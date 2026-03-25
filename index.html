@@ -378,6 +378,11 @@
         }
         
         loadNews();
+        
+        if (window.speechSynthesis) {
+            window.speechSynthesis.onvoiceschanged = loadVoices;
+            setTimeout(loadVoices, 100);
+        }
     </script>
 </body>
 </html>
