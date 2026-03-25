@@ -8,3 +8,4 @@ python3 -m http.server 8000
 ```
 
 然后访问 http://localhost:8000
+# Deploy trigger
