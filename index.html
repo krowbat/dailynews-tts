@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>每日新闻简报 - ElevenLabs TTS</title>
+    <title>每日新闻简报 - 语音版</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
@@ -46,14 +46,22 @@
             opacity: 0.9;
         }
         
-        /* TTS Controls */
-        .tts-controls {
+        /* Audio Player */
+        .audio-section {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        
+        .audio-controls {
             display: flex;
             gap: 10px;
             align-items: center;
+            flex-wrap: wrap;
         }
         
-        .tts-btn {
+        .audio-btn {
             background: white;
             border: none;
             padding: 10px 20px;
@@ -68,27 +76,45 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
         
-        .tts-btn:hover:not(:disabled) {
+        .audio-btn:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
         
-        .tts-btn.play { color: #667eea; }
-        .tts-btn.stop { color: #e74c3c; }
-        .tts-btn:disabled {
+        .audio-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
         }
         
-        .tts-btn.loading {
-            background: #f0f0f0;
+        .audio-btn.primary {
+            background: #48bb78;
+            color: white;
         }
         
-        .tts-status {
-            font-size: 12px;
+        .audio-btn.primary:hover:not(:disabled) {
+            background: #38a169;
+        }
+        
+        .audio-info {
+            font-size: 13px;
             opacity: 0.9;
-            min-width: 100px;
-            text-align: right;
+            margin-left: auto;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 2px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #48bb78;
+            width: 0%;
+            transition: width 0.1s linear;
         }
         
         /* Main Content */
@@ -103,44 +129,14 @@
             margin-bottom: 30px;
         }
         
-        .category-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
         .category-title {
             font-size: 20px;
             font-weight: 600;
             color: #333;
+            margin-bottom: 15px;
             display: flex;
             align-items: center;
             gap: 10px;
-        }
-        
-        .category-play {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: all 0.2s;
-        }
-        
-        .category-play:hover:not(:disabled) {
-            background: #5a67d8;
-            transform: scale(1.05);
-        }
-        
-        .category-play:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
         }
         
         /* News Card */
@@ -159,17 +155,9 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         
-        .news-card.speaking {
-            border-color: #667eea !important;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2) !important;
-        }
-        
-        .news-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 15px;
-            margin-bottom: 10px;
+        .news-card.current-playing {
+            border-color: #48bb78;
+            box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.2);
         }
         
         .news-title {
@@ -177,29 +165,7 @@
             font-weight: 600;
             color: #1a1a1a;
             line-height: 1.5;
-            flex: 1;
-        }
-        
-        .news-play {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 20px;
-            padding: 5px;
-            border-radius: 50%;
-            transition: all 0.2s;
-            color: #667eea;
-            min-width: 40px;
-        }
-        
-        .news-play:hover:not(:disabled) {
-            background: #f0f0f0;
-            transform: scale(1.1);
-        }
-        
-        .news-play:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+            margin-bottom: 8px;
         }
         
         .news-source {
@@ -264,6 +230,18 @@
             font-size: 14px;
         }
         
+        /* No audio message */
+        .no-audio {
+            background: #fffaf0;
+            border: 1px solid #fbd38d;
+            color: #c05621;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 14px;
+            text-align: center;
+        }
+        
         /* Footer */
         .footer {
             text-align: center;
@@ -283,7 +261,7 @@
             .header h1 { font-size: 20px; }
             .container { padding: 15px; }
             .news-card { padding: 15px; }
-            .tts-status { text-align: center; min-width: auto; }
+            .audio-info { margin-left: 0; width: 100%; text-align: center; }
         }
     </style>
 </head>
@@ -294,14 +272,23 @@
                 <h1>📰 每日新闻简报</h1>
                 <div class="date" id="currentDate">加载中...</div>
             </div>
-            <div class="tts-controls">
-                <span class="tts-status" id="ttsStatus"></span>
-                <button class="tts-btn play" id="playBtn" onclick="playAll()">
-                    🔊 ElevenLabs 播报
+        </div>
+        
+        <div class="audio-section">
+            <div class="audio-controls">
+                <button class="audio-btn primary" id="playBtn" onclick="togglePlay()">
+                    ▶️ 播放语音
                 </button>
-                <button class="tts-btn stop" id="stopBtn" onclick="stopPlaying()" style="display:none;">
-                    ⏹️ 停止
+                <button class="audio-btn" id="prevBtn" onclick="prevTrack()" disabled>
+                    ⏮️ 上一段
                 </button>
+                <button class="audio-btn" id="nextBtn" onclick="nextTrack()" disabled>
+                    ⏭️ 下一段
+                </button>
+                <span class="audio-info" id="audioInfo">准备就绪</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
             </div>
         </div>
     </header>
@@ -314,8 +301,10 @@
     </div>
 
     <footer class="footer">
-        <p>每日早8点自动更新 · 语音由 ElevenLabs 提供</p>
+        <p>每日早8点自动更新 · 语音由 Edge TTS 生成</p>
     </footer>
+
+    <audio id="audioPlayer" preload="none"></audio>
 
     <script>
         // 分类图标
@@ -331,8 +320,10 @@
         };
 
         let currentNews = null;
-        let currentAudio = null;
-        let isLoading = false;
+        let audioFiles = [];
+        let currentTrack = 0;
+        let isPlaying = false;
+        const audioPlayer = document.getElementById('audioPlayer');
 
         // 获取日期
         function getTodayDate() {
@@ -343,11 +334,26 @@
             return `${year}-${month}-${day}`;
         }
 
-        // 加载新闻
-        async function loadNews() {
+        // 加载音频清单和新闻
+        async function loadData() {
             const today = getTodayDate();
             document.getElementById('currentDate').textContent = today;
             
+            // 尝试加载音频清单
+            try {
+                const manifestRes = await fetch(`/audio/manifest.json?t=${Date.now()}`);
+                if (manifestRes.ok) {
+                    const manifest = await manifestRes.json();
+                    if (manifest.date === today && manifest.files.length > 0) {
+                        audioFiles = manifest.files.map(f => `/audio/${f.split('/').pop()}`);
+                        updateAudioInfo();
+                    }
+                }
+            } catch (e) {
+                console.log('No audio manifest found');
+            }
+            
+            // 加载新闻内容
             try {
                 const response = await fetch(`https://krowbat.github.io/newsbriefs/news-brief-${today}.html`);
                 if (!response.ok) throw new Error('News not found');
@@ -355,6 +361,10 @@
                 const html = await response.text();
                 currentNews = parseNewsHTML(html);
                 renderNews(currentNews);
+                
+                if (audioFiles.length === 0) {
+                    showNoAudioMessage();
+                }
             } catch (error) {
                 console.error('Failed to load news:', error);
                 document.getElementById('content').innerHTML = `
@@ -418,32 +428,17 @@
                 
                 html += `
                     <div class="category">
-                        <div class="category-header">
-                            <h2 class="category-title">
-                                <span>${icon}</span>
-                                ${category}
-                            </h2>
-                            <button class="category-play" onclick="playCategory('${category}')" id="btn-cat-${category.replace(/\s/g, '-')}">
-                                🔊 播报
-                            </button>
-                        </div>
+                        <h2 class="category-title">
+                            <span>${icon}</span>
+                            ${category}
+                        </h2>
                 `;
                 
                 items.forEach((item, idx) => {
                     html += `
-                        <div class="news-card" id="card-${category.replace(/\s/g, '-')}-${idx}">
-                            <div class="news-header">
-                                <div style="flex:1;">
-                                    <span class="news-source">${item.source}</span>
-                                    <div class="news-title">${item.title}</div>
-                                </div>
-                                <button class="news-play" 
-                                    onclick="playSingle('${category}', ${idx})" 
-                                    id="btn-${category.replace(/\s/g, '-')}-${idx}"
-                                    title="播报本条">
-                                    🔊
-                                </button>
-                            </div>
+                        <div class="news-card" id="card-${idx}">
+                            <span class="news-source">${item.source}</span>
+                            <div class="news-title">${item.title}</div>
                             <div class="news-summary">${item.summary}</div>
                             ${item.url ? `<a href="${item.url}" target="_blank" class="news-link">阅读原文 →</a>` : ''}
                         </div>
@@ -456,177 +451,103 @@
             content.innerHTML = html;
         }
 
-        // ElevenLabs TTS API 调用
-        async function generateSpeech(text) {
-            const response = await fetch('/api/tts', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    text,
-                    voiceId: 'XB0fDUnXU5powFXDhCwa' // Grace 女声，中文效果好
-                }),
-            });
-
-            if (!response.ok) {
-                const error = await response.json().catch(() => ({ error: 'Unknown error' }));
-                throw new Error(error.error || `HTTP ${response.status}`);
-            }
-
-            const blob = await response.blob();
-            return URL.createObjectURL(blob);
+        // 显示无音频消息
+        function showNoAudioMessage() {
+            const content = document.getElementById('content');
+            content.insertAdjacentHTML('afterbegin', `
+                <div class="no-audio">
+                    🎙️ 今日语音正在生成中，预计几分钟后可用<br>
+                    <small>您仍可阅读下方文字内容</small>
+                </div>
+            `);
+            document.getElementById('playBtn').disabled = true;
+            document.getElementById('playBtn').textContent = '⏳ 语音生成中';
         }
 
-        // 播放单条
-        async function playSingle(category, idx) {
-            if (isLoading || !currentNews) return;
-            
-            const item = currentNews.categories[category][idx];
-            const text = `${item.title}。${item.summary}`;
-            
-            await playAudio(text, `${category}-${idx}`, `card-${category.replace(/\s/g, '-')}-${idx}`);
-        }
-
-        // 播放分类
-        async function playCategory(category) {
-            if (isLoading || !currentNews) return;
-            
-            const items = currentNews.categories[category];
-            let text = `${category}：`;
-            items.forEach((item, idx) => {
-                text += `第${idx + 1}条，${item.title}。${item.summary}。`;
-            });
-            
-            await playAudio(text, category);
-        }
-
-        // 播放全部
-        async function playAll() {
-            if (isLoading || !currentNews) return;
-            
-            let text = `今日新闻简报，${currentNews.date}。`;
-            
-            for (const [category, items] of Object.entries(currentNews.categories)) {
-                text += `${category}：`;
-                items.forEach((item, idx) => {
-                    text += `第${idx + 1}条，${item.title}。${item.summary}。`;
-                });
-            }
-            
-            await playAudio(text, 'all');
-        }
-
-        // 通用播放函数
-        async function playAudio(text, id, cardId = null) {
-            if (isLoading) return;
-            
-            // 停止当前播放
-            stopPlaying();
-            
-            // 设置加载状态
-            isLoading = true;
-            updateUIState('loading', id);
-            
-            try {
-                // 生成音频
-                const audioUrl = await generateSpeech(text);
-                
-                // 播放
-                currentAudio = new Audio(audioUrl);
-                
-                currentAudio.onplay = () => {
-                    isLoading = false;
-                    updateUIState('playing', id, cardId);
-                };
-                
-                currentAudio.onended = () => {
-                    stopPlaying();
-                };
-                
-                currentAudio.onerror = () => {
-                    console.error('Audio playback error');
-                    stopPlaying();
-                };
-                
-                await currentAudio.play();
-                
-            } catch (error) {
-                console.error('TTS Error:', error);
-                alert('语音生成失败：' + error.message + '\n\n可能原因：\n1. 免费额度已用完\n2. 文本过长\n3. 网络问题');
-                stopPlaying();
+        // 更新音频信息
+        function updateAudioInfo() {
+            if (audioFiles.length > 0) {
+                document.getElementById('audioInfo').textContent = 
+                    `共 ${audioFiles.length} 段音频 · 第 ${currentTrack + 1} 段`;
+                document.getElementById('prevBtn').disabled = currentTrack === 0;
+                document.getElementById('nextBtn').disabled = currentTrack === audioFiles.length - 1;
+            } else {
+                document.getElementById('audioInfo').textContent = '暂无语音';
+                document.getElementById('playBtn').disabled = true;
             }
         }
 
-        // 停止播放
-        function stopPlaying() {
-            if (currentAudio) {
-                currentAudio.pause();
-                currentAudio.currentTime = 0;
-                currentAudio = null;
-            }
-            isLoading = false;
-            updateUIState('idle');
-        }
-
-        // 更新 UI 状态
-        function updateUIState(state, id = null, cardId = null) {
-            const playBtn = document.getElementById('playBtn');
-            const stopBtn = document.getElementById('stopBtn');
-            const status = document.getElementById('ttsStatus');
+        // 播放控制
+        function togglePlay() {
+            if (audioFiles.length === 0) return;
             
-            // 重置所有按钮
-            document.querySelectorAll('.category-play, .news-play').forEach(btn => {
-                btn.disabled = false;
-                btn.textContent = btn.classList.contains('category-play') ? '🔊 播报' : '🔊';
-            });
-            
-            // 清除高亮
-            document.querySelectorAll('.news-card').forEach(card => {
-                card.classList.remove('speaking');
-            });
-            
-            switch (state) {
-                case 'loading':
-                    playBtn.style.display = 'none';
-                    stopBtn.style.display = 'flex';
-                    stopBtn.textContent = '⏳ 生成中...';
-                    stopBtn.disabled = true;
-                    status.textContent = '正在生成语音...';
-                    
-                    // 禁用所有播放按钮
-                    document.querySelectorAll('.category-play, .news-play').forEach(btn => {
-                        btn.disabled = true;
-                    });
-                    break;
-                    
-                case 'playing':
-                    playBtn.style.display = 'none';
-                    stopBtn.style.display = 'flex';
-                    stopBtn.textContent = '⏹️ 停止';
-                    stopBtn.disabled = false;
-                    status.textContent = id === 'all' ? '播报全部' : `播报: ${id}`;
-                    
-                    // 高亮当前卡片
-                    if (cardId) {
-                        const card = document.getElementById(cardId);
-                        if (card) card.classList.add('speaking');
-                    }
-                    break;
-                    
-                case 'idle':
-                default:
-                    playBtn.style.display = 'flex';
-                    stopBtn.style.display = 'none';
-                    stopBtn.textContent = '⏹️ 停止';
-                    stopBtn.disabled = false;
-                    playBtn.disabled = false;
-                    status.textContent = '';
+            if (isPlaying) {
+                audioPlayer.pause();
+                isPlaying = false;
+                document.getElementById('playBtn').innerHTML = '▶️ 播放语音';
+            } else {
+                if (audioPlayer.src !== audioFiles[currentTrack]) {
+                    audioPlayer.src = audioFiles[currentTrack];
+                }
+                audioPlayer.play();
+                isPlaying = true;
+                document.getElementById('playBtn').innerHTML = '⏸️ 暂停';
             }
         }
 
-        // 页面加载时获取新闻
-        loadNews();
+        // 上一段
+        function prevTrack() {
+            if (currentTrack > 0) {
+                currentTrack--;
+                loadTrack();
+            }
+        }
+
+        // 下一段
+        function nextTrack() {
+            if (currentTrack < audioFiles.length - 1) {
+                currentTrack++;
+                loadTrack();
+            }
+        }
+
+        // 加载指定音频
+        function loadTrack() {
+            audioPlayer.src = audioFiles[currentTrack];
+            updateAudioInfo();
+            if (isPlaying) {
+                audioPlayer.play();
+            }
+        }
+
+        // 音频事件监听
+        audioPlayer.addEventListener('ended', () => {
+            if (currentTrack < audioFiles.length - 1) {
+                currentTrack++;
+                loadTrack();
+                audioPlayer.play();
+            } else {
+                isPlaying = false;
+                document.getElementById('playBtn').innerHTML = '▶️ 播放语音';
+                currentTrack = 0;
+                loadTrack();
+            }
+        });
+
+        audioPlayer.addEventListener('timeupdate', () => {
+            const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        });
+
+        audioPlayer.addEventListener('error', () => {
+            console.error('Audio load error');
+            document.getElementById('audioInfo').textContent = '音频加载失败';
+            isPlaying = false;
+            document.getElementById('playBtn').innerHTML = '▶️ 播放语音';
+        });
+
+        // 页面加载
+        loadData();
     </script>
 </body>
 </html>

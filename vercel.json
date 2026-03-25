@@ -3,11 +3,9 @@
   "name": "daily-news-tts",
   "framework": null,
   "builds": [
-    { "src": "api/*.js", "use": "@vercel/node" },
     { "src": "index.html", "use": "@vercel/static" }
   ],
   "routes": [
-    { "src": "/api/tts", "dest": "/api/tts.js" },
     { "src": "/(.*)", "dest": "/$1" }
   ]
 }
