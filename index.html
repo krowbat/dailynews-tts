@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>每日新闻简报</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+            background: #f5f5f5;
+            line-height: 1.6;
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .header .date {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        /* TTS Controls */
+        .tts-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .tts-btn {
+            background: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        
+        .tts-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .tts-btn.play {
+            color: #667eea;
+        }
+        
+        .tts-btn.stop {
+            color: #e74c3c;
+        }
+        
+        .tts-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .tts-status {
+            font-size: 12px;
+            opacity: 0.9;
+            min-width: 80px;
+        }
+        
+        /* Main Content */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Category */
+        .category {
+            margin-bottom: 30px;
+        }
+        
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .category-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .category-play {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+        }
+        
+        .category-play:hover {
+            background: #5a67d8;
+            transform: scale(1.05);
+        }
+        
+        /* News Card */
+        .news-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border: 1px solid #eee;
+            transition: all 0.3s;
+        }
+        
+        .news-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .news-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .news-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            line-height: 1.5;
+            flex: 1;
+        }
+        
+        .news-play {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            padding: 5px;
+            border-radius: 50%;
+            transition: all 0.2s;
+            color: #667eea;
+        }
+        
+        .news-play:hover {
+            background: #f0f0f0;
+            transform: scale(1.1);
+        }
+        
+        .news-source {
+            display: inline-block;
+            background: #f5f5f5;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .news-summary {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.7;
+            margin-bottom: 10px;
+        }
+        
+        .news-link {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        .news-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #999;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #999;
+            font-size: 13px;
+            border-top: 1px solid #eee;
+            margin-top: 40px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 600px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .header h1 {
+                font-size: 20px;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .news-card {
+                padding: 15px;
+            }
+        }
+        
+        /* Highlight speaking card */
+        .speaking {
+            border-color: #667eea !important;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2) !important;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div>
+                <h1>📰 每日新闻简报</h1>
+                <div class="date" id="currentDate">加载中...</div>
+            </div>
+            <div class="tts-controls">
+                <span class="tts-status" id="ttsStatus"></span>
+                <button class="tts-btn play" id="playBtn" onclick="playAll()">
+                    🔊 播报全部
+                </button>
+                <button class="tts-btn stop" id="stopBtn" onclick="stopSpeaking()" style="display:none;">
+                    ⏹️ 停止
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container" id="content">
+        <div class="loading">
+            <div class="loading-spinner"></div>
+            <div>正在加载今日新闻...</div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>每日早8点自动更新 · 语音播报使用浏览器内置TTS</p>
+    </footer>
+
+    <script>
+        // 分类图标
+        const categoryIcons = {
+            '国际头条': '🔴',
+            '外电看中国': '🇨🇳',
+            '科技前沿': '💻',
+            '科技': '💻',
+            '体育': '🏂',
+            '加拿大本地': '🇨🇦',
+            '国内社会健康': '🏥',
+            '社会': '🏥'
+        };
+
+        let currentNews = null;
+        let speaking = false;
+        let currentUtterance = null;
+
+        // 获取日期
+        function getTodayDate() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // 加载新闻
+        async function loadNews() {
+            const today = getTodayDate();
+            document.getElementById('currentDate').textContent = today;
+            
+            try {
+                // 从 GitHub Pages 获取新闻数据
+                const response = await fetch(`https://krowbat.github.io/newsbriefs/news-brief-${today}.html`);
+                if (!response.ok) throw new Error('News not found');
+                
+                const html = await response.text();
+                currentNews = parseNewsHTML(html);
+                renderNews(currentNews);
+            } catch (error) {
+                console.error('Failed to load news:', error);
+                document.getElementById('content').innerHTML = `
+                    <div class="loading">
+                        <p>⚠️ 今日新闻暂未更新</p>
+                        <p style="font-size: 14px; margin-top: 10px;">
+                            您可以访问 <a href="https://krowbat.github.io/newsbriefs/" target="_blank">新闻简报主页</a> 查看
+                        </p>
+                    </div>
+                `;
+            }
+        }
+
+        // 解析 HTML 提取新闻数据
+        function parseNewsHTML(html) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            const categories = {};
+            const sections = doc.querySelectorAll('.section');
+            
+            sections.forEach(section => {
+                const titleEl = section.querySelector('.section-title');
+                if (!titleEl) return;
+                
+                const categoryName = titleEl.textContent.trim();
+                const items = [];
+                
+                const cards = section.querySelectorAll('.article-card');
+                cards.forEach(card => {
+                    const titleEl = card.querySelector('.article-title');
+                    const sourceEl = card.querySelector('.article-meta .tag, .article-source');
+                    const descEl = card.querySelector('.article-desc');
+                    const linkEl = card.querySelector('a[href]');
+                    
+                    if (titleEl) {
+                        items.push({
+                            title: titleEl.textContent.trim(),
+                            source: sourceEl ? sourceEl.textContent.replace('📌 ', '').trim() : '未知来源',
+                            summary: descEl ? descEl.textContent.trim() : '',
+                            url: linkEl ? linkEl.href : ''
+                        });
+                    }
+                });
+                
+                if (items.length > 0) {
+                    categories[categoryName] = items;
+                }
+            });
+            
+            return {
+                date: getTodayDate(),
+                categories: categories
+            };
+        }
+
+        // 渲染新闻
+        function renderNews(news) {
+            const content = document.getElementById('content');
+            let html = '';
+            
+            for (const [category, items] of Object.entries(news.categories)) {
+                const icon = categoryIcons[category] || '📌';
+                
+                html += `
+                    <div class="category">
+                        <div class="category-header">
+                            <h2 class="category-title">
+                                <span>${icon}</span>
+                                ${category}
+                            </h2>
+                            <button class="category-play" onclick="playCategory('${category}')">
+                                🔊 播报
+                            </button>
+                        </div>
+                `;
+                
+                items.forEach((item, idx) => {
+                    html += `
+                        <div class="news-card" id="card-${category}-${idx}">
+                            <div class="news-header">
+                                <div style="flex:1;">
+                                    <span class="news-source">${item.source}</span>
+                                    <div class="news-title">${item.title}</div>
+                                </div>
+                                <button class="news-play" onclick="playSingle('${category}', ${idx})" title="播报本条">
+                                    🔊
+                                </button>
+                            </div>
+                            <div class="news-summary">${item.summary}</div>
+                            ${item.url ? `<a href="${item.url}" target="_blank" class="news-link">阅读原文 →</a>` : ''}
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+            }
+            
+            content.innerHTML = html;
+        }
+
+        // 播放单条
+        function playSingle(category, idx) {
+            if (!currentNews || !currentNews.categories[category]) return;
+            
+            const item = currentNews.categories[category][idx];
+            const text = `${item.title}。${item.summary}`;
+            
+            // 高亮当前卡片
+            document.querySelectorAll('.news-card').forEach(c => c.classList.remove('speaking'));
+            const card = document.getElementById(`card-${category}-${idx}`);
+            if (card) card.classList.add('speaking');
+            
+            speak(text, `${category} - ${item.title}`);
+        }
+
+        // 播放分类
+        function playCategory(category) {
+            if (!currentNews || !currentNews.categories[category]) return;
+            
+            const items = currentNews.categories[category];
+            let text = `${category}：`;
+            items.forEach((item, idx) => {
+                text += `第${idx + 1}条：${item.title}。${item.summary}。`;
+            });
+            
+            speak(text, category);
+        }
+
+        // 播放全部
+        function playAll() {
+            if (!currentNews) return;
+            
+            let text = `今日新闻简报，${currentNews.date}。`;
+            
+            for (const [category, items] of Object.entries(currentNews.categories)) {
+                text += `${category}：`;
+                items.forEach((item, idx) => {
+                    text += `第${idx + 1}条：${item.title}。${item.summary}。`;
+                });
+            }
+            
+            speak(text, '全部新闻');
+        }
+
+        // 语音播报
+        function speak(text, statusText) {
+            if (!('speechSynthesis' in window)) {
+                alert('您的浏览器不支持语音播报');
+                return;
+            }
+            
+            stopSpeaking();
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'zh-CN';
+            utterance.rate = 0.9;
+            utterance.pitch = 1;
+            
+            utterance.onstart = () => {
+                speaking = true;
+                currentUtterance = utterance;
+                document.getElementById('playBtn').style.display = 'none';
+                document.getElementById('stopBtn').style.display = 'flex';
+                document.getElementById('ttsStatus').textContent = `正在播报：${statusText}`;
+            };
+            
+            utterance.onend = () => {
+                speaking = false;
+                currentUtterance = null;
+                document.getElementById('playBtn').style.display = 'flex';
+                document.getElementById('stopBtn').style.display = 'none';
+                document.getElementById('ttsStatus').textContent = '';
+                document.querySelectorAll('.news-card').forEach(c => c.classList.remove('speaking'));
+            };
+            
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // 停止播报
+        function stopSpeaking() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+            speaking = false;
+            currentUtterance = null;
+            document.getElementById('playBtn').style.display = 'flex';
+            document.getElementById('stopBtn').style.display = 'none';
+            document.getElementById('ttsStatus').textContent = '';
+            document.querySelectorAll('.news-card').forEach(c => c.classList.remove('speaking'));
+        }
+
+        // 页面加载时获取新闻
+        loadNews();
+    </script>
+</body>
+</html>

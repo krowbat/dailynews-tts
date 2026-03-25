@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "name": "daily-news-tts",
+  "buildCommand": "echo 'Static site, no build needed'",
+  "outputDirectory": ".",
+  "framework": null
+}
