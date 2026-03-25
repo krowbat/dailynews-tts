@@ -341,7 +341,7 @@
             
             // 尝试加载音频清单
             try {
-                const manifestRes = await fetch(`/audio/manifest.json?t=${Date.now()}`);
+                const manifestRes = await fetch(`/manifest.json?t=${Date.now()}`);
                 if (manifestRes.ok) {
                     const manifest = await manifestRes.json();
                     if (manifest.date === today && manifest.files.length > 0) {
