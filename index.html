@@ -1,388 +1,168 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <title>每日新闻简报</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
-            background: #f5f5f5;
-            line-height: 1.6;
-        }
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        .header-content {
-            max-width: 800px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        .header h1 { font-size: 24px; }
-        .header .date { font-size: 14px; opacity: 0.9; }
-        .tts-controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-        .voice-select {
-            background: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            cursor: pointer;
-            max-width: 150px;
-        }
-        .tts-btn {
-            background: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s;
-        }
-        .tts-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-        .tts-btn.play { color: #667eea; }
-        .tts-btn.stop { color: #e74c3c; }
-        .tts-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        .tts-status { font-size: 13px; opacity: 0.9; }
-        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
-        .category { margin-bottom: 30px; }
-        .category-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        .category-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #333;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .category-play {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .category-play:hover { background: #5a67d8; }
-        .category-play:disabled { opacity: 0.6; cursor: not-allowed; }
-        .news-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            border: 1px solid #eee;
-            transition: all 0.3s;
-        }
-        .news-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .news-card.speaking { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2); }
-        .news-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 15px;
-            margin-bottom: 10px;
-        }
-        .news-title { font-size: 16px; font-weight: 600; color: #1a1a1a; line-height: 1.5; flex: 1; }
-        .news-play {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 20px;
-            padding: 5px;
-            border-radius: 50%;
-            color: #667eea;
-            transition: all 0.2s;
-        }
-        .news-play:hover { background: #f0f0f0; transform: scale(1.1); }
-        .news-play:disabled { opacity: 0.5; cursor: not-allowed; }
-        .news-source {
-            display: inline-block;
-            background: #f5f5f5;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 10px;
-        }
-        .news-summary { color: #555; font-size: 14px; line-height: 1.7; margin-bottom: 10px; }
-        .news-link { color: #667eea; text-decoration: none; font-size: 13px; font-weight: 500; }
-        .news-link:hover { text-decoration: underline; }
-        .loading { text-align: center; padding: 50px; color: #999; }
-        .loading-spinner {
-            display: inline-block;
-            width: 40px;
-            height: 40px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 15px;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .footer { text-align: center; padding: 30px; color: #999; font-size: 13px; border-top: 1px solid #eee; margin-top: 40px; }
-        @media (max-width: 600px) {
-            .header-content { flex-direction: column; text-align: center; }
-            .header h1 { font-size: 20px; }
-            .container { padding: 15px; }
-            .news-card { padding: 15px; }
-        }
-    </style>
+<meta charset="UTF-8">
+<title>新闻简报 - 2026-04-11</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:720px;margin:0 auto;padding:24px 16px;line-height:1.7;color:#2c2c2c;background:#fafafa}
+.header{text-align:center;padding:30px 0;border-bottom:1px solid #eee;margin-bottom:40px}
+.header h1{font-size:28px;font-weight:700;margin:0 0 8px}
+.header .date{color:#999;font-size:14px}
+.section{margin-bottom:40px}
+.section-title{font-size:20px;font-weight:600;margin-bottom:20px;padding-left:12px;border-left:4px solid #ff4757}
+.article-card{background:#fff;border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.article-title{font-size:17px;font-weight:600;margin:0 0 8px;line-height:1.4}
+.article-meta{font-size:13px;color:#888;margin-bottom:10px}
+.article-desc{color:#555;font-size:14px;line-height:1.7}
+.article-source{font-size:12px;color:#aaa;margin-top:10px}
+.article-source a{color:#ff4757;text-decoration:none}
+.tldr{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:20px;border-radius:12px;margin-bottom:30px}
+.tldr h2{font-size:18px;margin:0 0 10px}
+.tldr p{margin:0;font-size:15px}
+.audio-section{background:#fff;border-radius:12px;padding:24px;margin-bottom:30px;box-shadow:0 1px 3px rgba(0,0,0,0.06);text-align:center}
+audio{width:100%;max-width:500px;margin-top:12px}
+.footer{text-align:center;padding:30px 0;color:#999;font-size:13px;border-top:1px solid #eee;margin-top:40px}
+.footer a{color:#ff4757}
+</style>
 </head>
 <body>
-    <header class="header">
-        <div class="header-content">
-            <div>
-                <h1>📰 每日新闻简报</h1>
-                <div class="date" id="currentDate">加载中...</div>
-            </div>
-            <div class="tts-controls">
-                <span class="tts-status" id="ttsStatus"></span>
-                <select class="voice-select" id="voiceSelect" onchange="changeVoice()">
-                    <option value="">默认语音</option>
-                </select>
-                <button class="tts-btn play" id="playBtn" onclick="playAll()">🔊 播报全部</button>
-                <button class="tts-btn stop" id="stopBtn" onclick="stopSpeaking()" style="display:none;">⏹️ 停止</button>
-            </div>
-        </div>
-    </header>
-
-    <div class="container" id="content">
-        <div class="loading">
-            <div class="loading-spinner"></div>
-            <div>正在加载今日新闻...</div>
-        </div>
-    </div>
-
-    <footer class="footer">
-        <p>每日早8点自动更新 · 语音播报</p>
-    </footer>
-
-    <script>
-        const categoryIcons = {
-            '国际头条': '🔴', '外电看中国': '🇨🇳', '科技前沿': '💻', '科技': '💻',
-            '体育': '🏂', '加拿大本地': '🇨🇦', '国内社会健康': '🏥', '社会': '🏥'
-        };
-        
-        let currentNews = null;
-        let speaking = false;
-        let currentVoice = null;
-        let voices = [];
-
-        function loadVoices() {
-            voices = window.speechSynthesis.getVoices();
-            const voiceSelect = document.getElementById('voiceSelect');
-            voiceSelect.innerHTML = '<option value="">默认语音</option>';
-            const zhVoices = voices.filter(v => v.lang.includes('zh') || v.lang.includes('cmn'));
-            const otherVoices = voices.filter(v => !v.lang.includes('zh') && !v.lang.includes('cmn'));
-            if (zhVoices.length) {
-                voiceSelect.innerHTML += '<optgroup label="中文语音">';
-                zhVoices.forEach((v, i) => voiceSelect.innerHTML += `<option value="${v.name}">${v.name}</option>`);
-                voiceSelect.innerHTML += '</optgroup>';
-            }
-            if (otherVoices.length) {
-                voiceSelect.innerHTML += '<optgroup label="其他语音">';
-                otherVoices.slice(0, 10).forEach(v => voiceSelect.innerHTML += `<option value="${v.name}">${v.name} (${v.lang})</option>`);
-                voiceSelect.innerHTML += '</optgroup>';
-            }
-        }
-
-        function changeVoice() {
-            const name = document.getElementById('voiceSelect').value;
-            currentVoice = voices.find(v => v.name === name) || null;
-        }
-        
-        function getTodayDate() {
-            const now = new Date();
-            return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-        }
-        
-        async function loadNews() {
-            const today = getTodayDate();
-            document.getElementById('currentDate').textContent = today;
-            
-            try {
-                const response = await fetch(`https://krowbat.github.io/newsbriefs/news-brief-${today}.html`);
-                if (!response.ok) throw new Error('News not found');
-                const html = await response.text();
-                currentNews = parseNewsHTML(html);
-                renderNews(currentNews);
-            } catch (error) {
-                document.getElementById('content').innerHTML = `
-                    <div class="loading">
-                        <p>⚠️ 今日新闻暂未更新</p>
-                        <p style="font-size: 14px; margin-top: 10px;">
-                            您可以访问 <a href="https://krowbat.github.io/newsbriefs/" target="_blank">新闻简报主页</a> 查看
-                        </p>
-                    </div>
-                `;
-            }
-        }
-        
-        function parseNewsHTML(html) {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            const categories = {};
-            
-            doc.querySelectorAll('.section').forEach(section => {
-                const titleEl = section.querySelector('.section-title');
-                if (!titleEl) return;
-                
-                const categoryName = titleEl.textContent.trim();
-                const items = [];
-                
-                section.querySelectorAll('.article-card').forEach(card => {
-                    const titleEl = card.querySelector('.article-title');
-                    const sourceEl = card.querySelector('.article-meta .tag, .article-source');
-                    const descEl = card.querySelector('.article-desc');
-                    const linkEl = card.querySelector('a[href]');
-                    
-                    if (titleEl) {
-                        items.push({
-                            title: titleEl.textContent.trim(),
-                            source: sourceEl ? sourceEl.textContent.replace('📌 ', '').trim() : '未知来源',
-                            summary: descEl ? descEl.textContent.trim() : '',
-                            url: linkEl ? linkEl.href : ''
-                        });
-                    }
-                });
-                
-                if (items.length) categories[categoryName] = items;
-            });
-            
-            return { date: getTodayDate(), categories };
-        }
-        
-        function renderNews(news) {
-            const content = document.getElementById('content');
-            let html = '';
-            
-            for (const [category, items] of Object.entries(news.categories)) {
-                const icon = categoryIcons[category] || '📌';
-                html += `
-                    <div class="category">
-                        <div class="category-header">
-                            <h2 class="category-title"><span>${icon}</span>${category}</h2>
-                            <button class="category-play" onclick="playCategory('${category}')">🔊 播报</button>
-                        </div>
-                `;
-                
-                items.forEach((item, idx) => {
-                    html += `
-                        <div class="news-card" id="card-${category}-${idx}">
-                            <div class="news-header">
-                                <div style="flex:1;">
-                                    <span class="news-source">${item.source}</span>
-                                    <div class="news-title">${item.title}</div>
-                                </div>
-                                <button class="news-play" onclick="playSingle('${category}', ${idx})" title="播报本条">🔊</button>
-                            </div>
-                            <div class="news-summary">${item.summary}</div>
-                            ${item.url ? `<a href="${item.url}" target="_blank" class="news-link">阅读原文 →</a>` : ''}
-                        </div>
-                    `;
-                });
-                html += '</div>';
-            }
-            content.innerHTML = html;
-        }
-        
-        function speak(text, status) {
-            if (!('speechSynthesis' in window)) {
-                alert('您的浏览器不支持语音播报');
-                return;
-            }
-            
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'zh-CN';
-            utterance.rate = 0.9;
-            if (currentVoice) utterance.voice = currentVoice;
-            
-            utterance.onstart = () => {
-                speaking = true;
-                document.getElementById('playBtn').style.display = 'none';
-                document.getElementById('stopBtn').style.display = 'flex';
-                document.getElementById('ttsStatus').textContent = status || '播报中...';
-            };
-            
-            utterance.onend = () => {
-                speaking = false;
-                document.getElementById('playBtn').style.display = 'flex';
-                document.getElementById('stopBtn').style.display = 'none';
-                document.getElementById('ttsStatus').textContent = '';
-                document.querySelectorAll('.news-card').forEach(c => c.classList.remove('speaking'));
-            };
-            
-            window.speechSynthesis.speak(utterance);
-        }
-        
-        function stopSpeaking() {
-            window.speechSynthesis.cancel();
-            speaking = false;
-            document.getElementById('playBtn').style.display = 'flex';
-            document.getElementById('stopBtn').style.display = 'none';
-            document.getElementById('ttsStatus').textContent = '';
-        }
-        
-        function playSingle(category, idx) {
-            if (!currentNews) return;
-            const item = currentNews.categories[category][idx];
-            document.querySelectorAll('.news-card').forEach(c => c.classList.remove('speaking'));
-            document.getElementById(`card-${category}-${idx}`).classList.add('speaking');
-            speak(`${item.title}。${item.summary}`, item.title);
-        }
-        
-        function playCategory(category) {
-            if (!currentNews) return;
-            const items = currentNews.categories[category];
-            let text = `${category}：`;
-            items.forEach((item, idx) => text += `第${idx+1}条，${item.title}。${item.summary}。`);
-            speak(text, category);
-        }
-        
-        function playAll() {
-            if (!currentNews) return;
-            let text = `今日新闻简报，${currentNews.date}。`;
-            for (const [category, items] of Object.entries(currentNews.categories)) {
-                text += `${category}：`;
-                items.forEach((item, idx) => text += `第${idx+1}条，${item.title}。${item.summary}。`);
-            }
-            speak(text, '全部新闻');
-        }
-        
-        loadNews();
-        
-        if (window.speechSynthesis) {
-            window.speechSynthesis.onvoiceschanged = loadVoices;
-            setTimeout(loadVoices, 100);
-        }
-    </script>
-</body>
-</html>
+<div class="header"><h1>📰 新闻简报</h1><p class="date">2026-04-11 · 每日更新</p></div>
+<div class="audio-section">
+  <h3>🔊 语音播报</h3>
+  <audio controls>
+    <source src="audio.mp3" type="audio/mpeg">
+    您的浏览器不支持音频播放
+  </audio>
+</div>
+<div class="tldr"><h2>📌 今日要闻</h2><p>今日看点：美伊和平谈判 underway 但尚未达成任何协议、阿尔忒弥斯II号任务圆满结束，机组人员成功返回地球、匈牙利领导人奥尔班面临被罢免危机、哈里王子被其共同创立的慈善机构起诉诽谤</p></div>
+<div class="section"><h2 class="section-title">🔴 国际头条</h2>
+<div class="article-card"><h3 class="article-title">美伊和平谈判 underway 但尚未达成任何协议</h3>
+<div class="article-meta"><strong>来源</strong>: CBS News</div>
+<p class="article-desc">美国和伊朗谈判代表在脆弱的两周停火期间进行高风险谈判，但尚未达成任何协议。双方正在努力缓解中东地区的紧张局势，但分歧仍然明显。</p>
+<div class="article-source">🔗 <a href="https://www.cbsnews.com/live-updates/iran-war-trump-strait-of-hormuz-israel-ceasefire-talks/" target="_blank">https://www.cbsnews.com/live-updates/iran-war-trump-strait-o...</a></div>
+</div>
+<div class="article-card"><h3 class="article-title">阿尔忒弥斯II号任务圆满结束，机组人员成功返回地球</h3>
+<div class="article-meta"><strong>来源</strong>: CBS News</div>
+<p class="article-desc">NASA阿尔忒弥斯II号任务的机组人员在完成历史性的绕月飞行任务后，成功溅落返回地球。这是人类时隔半个多世纪再次进行的载人探月任务。</p>
+<div class="article-source">🔗 <a href="https://www.cbsnews.com/live-updates/artemis-ii-splashdown-return/" target="_blank">https://www.cbsnews.com/live-updates/artemis-ii-splashdown-r...</a></div>
+</div>
+<div class="article-card"><h3 class="article-title">匈牙利领导人奥尔班面临被罢免危机</h3>
+<div class="article-meta"><strong>来源</strong>: CBS News</div>
+<p class="article-desc">匈牙利总理欧尔班·维克托面临政治危机，民意调查显示他可能即将下台。作为特朗普的盟友，奥尔班的潜在下台可能改变匈牙利的政治走向。</p>
+<div class="article-source">🔗 <a href="https://www.cbsnews.com/news/hungary-viktor-orban-elections-polls-vance-trump/" target="_blank">https://www.cbsnews.com/news/hungary-viktor-orban-elections-...</a></div>
+</div>
+<div class="article-card"><h3 class="article-title">哈里王子被其共同创立的慈善机构起诉诽谤</h3>
+<div class="article-meta"><strong>来源</strong>: The Guardian</div>
+<p class="article-desc">哈里王子因其共同创立的慈善机构Sentebale的诽谤诉讼而面临法律行动，此前他与该机构主席发生了口水战。这场法律纠纷引发了广泛关注。</p>
+<div class="article-source">🔗 <a href="https://www.theguardian.com/uk-news/2026/apr/10/prince-harry-sued-defamation-charity-sentebale" target="_blank">https://www.theguardian.com/uk-news/2026/apr/10/prince-harry...</a></div>
+</div>
+<div class="article-card"><h3 class="article-title">新西兰北岛遭遇飓风瓦伊阿努，数千人下令疏散</h3>
+<div class="article-meta"><strong>来源</strong>: The Guardian</div>
+<p class="article-desc">新西兰北岛正准备迎接飓风瓦伊阿努的到来，当局已下令数千名居民疏散。这场强风暴可能对当地造成严重破坏。</p>
+<div class="article-source">🔗 <a href="https://www.theguardian.com/world/2026/apr/11/new-zealands-north-island-braces-for-cyclone-vaianu-with-thousands-ordered-to-evacuate" target="_blank">https://www.theguardian.com/world/2026/apr/11/new-zealands-n...</a></div>
+</div>
+<div class="section"><h2 class="section-title">🇨🇳 外电看中国</h2>
+<div class="article-card"><h3 class="article-title">德语媒体：请勿打扰一个正在做傻事的敌人</h3>
+<div class="article-meta"><strong>来源</strong>: 德国之声 DW</div>
+<p class="article-desc">德国媒体评论指出，在国际关系中，有时不干预对手的错误决策是更明智的选择，让其自我消耗比直接对抗更有效。</p>
+<div class="article-source">🔗 <a href="https://www.dw.com/zh/德语媒体请勿打扰一个正在做傻事的敌人/a-76739962" target="_blank">https://www.dw.com/zh/德语媒体请勿打扰一个正在做傻事的敌人/a-76739962</a></div>
+</div>
+<div class="article-card"><h3 class="article-title">伊美谈判前景未明，中国是否公开担保？</h3>
+<div class="article-meta"><strong>来源</strong>: 德国之声 DW</div>
+<p class="article-desc">美国和伊朗之间的和平谈判正在进行中，但前景不明。外界关注中国是否会在这场中东外交中发挥公开担保人的角色，以促进地区稳定。</p>
+<div class="article-source">🔗 <a href="https://www.dw.com/zh/伊美谈判前景未明中国是否公开担保/a-76741863" target="_blank">https://www.dw.com/zh/伊美谈判前景未明中国是否公开担保/a-76741863</a></div>
+</div>
+<div class="article-card"><h3 class="article-title">外交关系遇冷：日本十年来首次下调对华评估</h3>
+<div class="article-meta"><strong>来源</strong>: 德国之声 DW</div>
+<p class="article-desc">随着地缘政治紧张局势加剧，东京方面在最新的外交白皮书中删除了关于中国是「最重要伙伴之一」的表述，这是十年来的首次，反映出双边关系的深刻倒退。</p>
+<div class="article-source">🔗 <a href="https://www.dw.com/zh/外交关系遇冷日本十年来首次下调对华评估/a-76741821" target="_blank">https://www.dw.com/zh/外交关系遇冷日本十年来首次下调对华评估/a-76741821</a></div>
+</div>
+<div class="article-card"><h3 class="article-title">解放报评析「和平之旅」：郑丽文上京，习近平满意</h3>
+<div class="article-meta"><strong>来源</strong>: 法广 RFI</div>
+<p class="article-desc">法国《解放报》分析指出，国民党主席郑丽文访问北京与习近平会面，习近平对此表现满意。报道分析了这次「和平之旅」背后的政治意涵与两岸关系走向。</p>
+<div class="article-source">🔗 <a href="https://www.rfi.fr/cn/%E6%B8%AF%E6%BE%B3%E5%8F%B0/20260411-%E8%A7%A3%E6%94%BE%E6%8A%A5%E6%B4%9E%E5%AF%9F-%E5%92%8C%E5%B9%B3%E4%B9%8B%E6%97%85-%E9%83%91%E4%B8%BD%E6%96%87%E8%B5%B4%E4%BA%AC%EF%BC%8C%E4%B9%A0%E8%BF%91%E5%B9%B3%E6%BB%A1%E6%84%8F" target="_blank">https://www.rfi.fr/cn/%E6%B8%AF%E6%BE%B3%E5%8F%B0/20260411-%...</a></div>
+</div>
+<div class="article-card"><h3 class="article-title">中国援建柬埔寨大运河 湄公河直通泰国湾 避开越南</h3>
+<div class="article-meta"><strong>来源</strong>: 法广 RFI</div>
+<p class="article-desc">中国援建的柬埔寨大运河项目将使湄公河直通泰国湾，绕开越南的传统水道。这一基础设施项目显示了中国在东南亚的地缘经济影响力扩张，引发越南担忧。</p>
+<div class="article-source">🔗 <a href="https://www.rfi.fr/cn/%E5%9B%BD%E9%99%85/20260411-%E4%B8%AD%E5%9B%BD%E6%8F%B4%E5%BB%BA%E6%9F%AC%E5%9F%94%E5%AF%A8%E5%A4%A7%E8%BF%B0%E6%B2%B3-%E6%B9%84%E5%85%AC%E6%B2%B3%E7%9B%B4%E9%80%9A%E6%B3%B0%E5%9B%BD%E6%B9%BE-%E9%81%BF%E5%BC%80%E8%B6%8A%E5%8D%97" target="_blank">https://www.rfi.fr/cn/%E5%9B%BD%E9%99%85/20260411-%E4%B8%AD%...</a></div>
+</div>
+<div class="article-card"><h3 class="article-title">霍尔木兹海峡紧张 日本澳大利亚加紧战略合作</h3>
+<div class="article-meta"><strong>来源</strong>: 法广 RFI</div>
+<p class="article-desc">随着霍尔木兹海峡局势紧张，日本和澳大利亚正加紧战略合作。两国在印度洋-太平洋地区的安全合作日益密切，以应对可能的中东石油运输中断风险。</p>
+<div class="article-source">🔗 <a href="https://www.rfi.fr/cn/%E4%BA%9A%E6%B4%B2/20260411-%E9%9C%8D%E5%B0%94%E6%9C%A8%E5%85%B9%E6%B5%B7%E5%B3%A1%E7%B4%A7%E5%BC%A0-%E6%97%A5%E6%9C%AC%E6%BE%B3%E5%A4%A7%E5%88%A9%E4%BA%9A%E5%8A%A0%E7%B4%A7%E6%88%98%E7%95%A5%E5%90%88%E4%BD%9C" target="_blank">https://www.rfi.fr/cn/%E4%BA%9A%E6%B4%B2/20260411-%E9%9C%8D%...</a></div>
+</div>
+<div class="article-card"><h3 class="article-title">「郑习会」：国共领袖握手13秒，郑丽文倡「制度性解决方案」，讲话未毕直播被切断</h3>
+<div class="article-meta"><strong>来源</strong>: BBC 中文</div>
+<p class="article-desc">国民党主席郑丽文与习近平在北京会面，两人握手长达13秒。郑丽文提出「制度性解决方案」，但其讲话未结束时直播被切断。两人多次提到「中华民族伟大复兴」及「九二共识、反对台独」的立场。这是国共两党最高领导人时隔十年的正式会面。</p>
+<div class="article-source">🔗 <a href="https://www.bbc.com/zhongwen/articles/c89580vjvzko/trad" target="_blank">https://www.bbc.com/zhongwen/articles/c89580vjvzko/trad</a></div>
+</div>
+<div class="article-card"><h3 class="article-title">王毅罕见访朝引发特金会猜测 分析指北京目标是「维持平衡」</h3>
+<div class="article-meta"><strong>来源</strong>: BBC 中文</div>
+<p class="article-desc">中国外长王毅罕见访问朝鲜，引发外界对特朗普与金正恩可能再次会面的猜测。分析认为，北京的战略目标是在朝鲜半岛问题上维持平衡，既保持与朝鲜的传统关系，又避免与美关系过度紧张。</p>
+<div class="article-source">🔗 <a href="https://www.bbc.com/zhongwen/articles/cy915r7q8dro/trad" target="_blank">https://www.bbc.com/zhongwen/articles/cy915r7q8dro/trad</a></div>
+</div>
+<div class="article-card"><h3 class="article-title">中国晶体为无GPS钍钟导航铺平道路</h3>
+<div class="article-meta"><strong>来源</strong>: 南华早报 SCMP</div>
+<p class="article-desc">中国科学家开发出世界首创晶体，可利用激光调谐为超精密紧凑型核钟提供动力，这种技术可在GPS无法工作的深空或水下环境中为潜艇和深空探测器提供导航。</p>
+<div class="article-source">🔗 <a href="https://www.scmp.com/news/china/science/article/3349477/chinese-crystal-paves-way-gps-free-thorium-clock-navigation" target="_blank">https://www.scmp.com/news/china/science/article/3349477/chin...</a></div>
+</div>
+<div class="article-card"><h3 class="article-title">「大事件」：军事演习显示东京日益关注对华威慑</h3>
+<div class="article-meta"><strong>来源</strong>: 南华早报 SCMP</div>
+<p class="article-desc">日本军事演习显示出东京日益关注对华威慑。这一动向反映了日本在安全政策上的转变，加强了与盟友的协调以应对中国在印太地区日益增长的军事存在。</p>
+<div class="article-source">🔗 <a href="https://www.scmp.com/news/china/military/article/3349650/big-deal-military-drills-showing-tokyos-growing-focus-deterring-china" target="_blank">https://www.scmp.com/news/china/military/article/3349650/big...</a></div>
+</div>
+<div class="section"><h2 class="section-title">💻 科技前沿</h2>
+<div class="article-card"><h3 class="article-title">YouTube Premium在美国涨价</h3>
+<div class="article-meta"><strong>来源</strong>: Engadget</div>
+<div class="article-meta">YouTube Premium订阅服务在美国市场涨价，这是该服务推出以来的又一次价格调整，反映出流媒体平台正在寻求更多收入来源以维持运营。</div>
+<div class="article-source">🔗 <a href="https://www.engadget.com/social-media/youtube-premiums-us-pricing-is-going-up-132121683.html" target="_blank">https://www.engadget.com/social-media/youtube-premiums-us-pr...</a></div>
+</div>
+<div class="article-card"><h3 class="article-title">NASA分享月球背面的惊人照片</h3>
+<div class="article-meta"><strong>来源</strong>: Engadget</div>
+<p class="article-desc">NASA发布了阿尔忒弥斯II号任务期间拍摄的月球背面照片，这些前所未见的图像展示了月球远端的壮丽地貌，为科学家提供了宝贵的研究资料。</p>
+<div class="article-source">🔗 <a href="https://www.engadget.com/science/space/nasa-shares-incredible-photos-from-the-far-side-of-the-moon-142355972.html" target="_blank">https://www.engadget.com/science/space/nasa-shares-incredibl...</a></div>
+</div>
+<div class="article-card"><h3 class="article-title">固态电池的圣杯终于要降临了吗？</h3>
+<div class="article-meta"><strong>来源</strong>: The Verge</div>
+<p class="article-desc">固态电池技术取得重大突破，这种被称为「电池圣杯」的技术有望大幅提升电动汽车的续航里程和安全性，多家公司正竞相将其商业化。</p>
+<div class="article-source">🔗 <a href="https://www.theverge.com/transportation/909480/solid-state-battery-donut-lab-ev-china" target="_blank">https://www.theverge.com/transportation/909480/solid-state-b...</a></div>
+</div>
+<div class="article-card"><h3 class="article-title">佛罗里达州对OpenAI展开调查</h3>
+<div class="article-meta"><strong>来源</strong>: The Verge</div>
+<p class="article-desc">佛罗里达州总检察长对OpenAI展开调查，声称ChatGPT已被「与犯罪行为联系起来」。这一调查反映了美国各州对AI技术监管日益加强的趋势。</p>
+<div class="article-source">🔗 <a href="https://www.theverge.com/policy/909557/openai-florida-investigation" target="_blank">https://www.theverge.com/policy/909557/openai-florida-invest...</a></div>
+</div>
+<div class="article-card"><h3 class="article-title">AI模型在足球博彩方面表现糟糕，尤其是xAI Grok</h3>
+<div class="article-meta"><strong>来源</strong>: Ars Technica</div>
+<p class="article-desc">最新研究发现，包括埃隆·马斯克的xAI Grok在内的多个AI模型在足球比赛预测方面表现糟糕，甚至不如随机猜测。研究表明AI在处理体育赛事的复杂变量时仍有局限。</p>
+<div class="article-source">🔗 <a href="https://arstechnica.com/ai/2026/04/ai-models-are-terrible-at-betting-on-soccer-especially-xai-grok/" target="_blank">https://arstechnica.com/ai/2026/04/ai-models-are-terrible-at...</a></div>
+</div>
+<div class="section"><h2 class="section-title">🇨🇦 加拿大/埃德蒙顿本地</h2>
+<div class="article-card"><h3 class="article-title">阿尔伯塔省原住民在分离主义挑战中赢得初步禁令</h3>
+<div class="article-meta"><strong>来源</strong>: Edmonton Journal</div>
+<p class="article-desc">阿尔伯塔省原住民在针对省选分离主义运动的法律挑战中赢得初步禁令，暂时阻止了省选举主管认证请愿结果。法院表示这些问题非常严重，且原住民已证明将受到不可弥补的损害。</p>
+<div class="article-source">🔗 <a href="https://edmontonjournal.com/news/politics/alberta-separatism-challlenge-blocked-first-nations" target="_blank">https://edmontonjournal.com/news/politics/alberta-separatism...</a></div>
+</div>
+<div class="article-card"><h3 class="article-title">埃德蒙顿油人队门将康纳·英格拉姆伤愈回归</h3>
+<div class="article-meta"><strong>来源</strong>: Edmonton Journal</div>
+<p class="article-desc">埃德蒙顿油人队门将康纳·英格拉姆在受伤恐慌后伤愈回归，缓解了球队的守门员危机。英格拉姆的回归对油人队季后赛征程具有重要意义。</p>
+<div class="article-source">🔗 <a href="https://edmontonjournal.com/sports/hockey/nhl/edmonton-oilers-goalie-connor-ingram-returns-after-injury-scare" target="_blank">https://edmontonjournal.com/sports/hockey/nhl/edmonton-oiler...</a></div>
+</div>
+<div class="article-card"><h3 class="article-title">郑丽文与习近平北京会面，提「制度性解决方案」</h3>
+<div class="article-meta"><strong>来源</strong>: RCI 加拿大国际广播电台</div>
+<p class="article-desc">台湾国民党主席郑丽文在北京与习近平会面，提出「制度性解决方案」的建议。这是国共两党领导人十年来的首次正式会晤，引发两岸关系走向的广泛关注。</p>
+<div class="article-source">🔗 <a href="https://ici.radio-canada.ca/rci/zh-hans/%E6%96%B0%E9%97%BB/2245244/%E4%B9%A0%E8%BF%91%E5%B9%B3-%E9%83%91%E4%B8%BD%E6%96%87-%E4%BC%9A%E9%9D%A2" target="_blank">https://ici.radio-canada.ca/rci/zh-hans/%E6%96%B0%E9%97%BB/2...</a></div>
+</div>
+<div class="article-card"><h3 class="article-title">加拿大3月新增1.4万个职位，失业率保持6.7%</h3>
+<div class="article-meta"><strong>来源</strong>: RCI 加拿大国际广播电台</div>
+<p class="article-desc">加拿大统计局数据显示，3月份全国新增1.4万个就业岗位，但失业率仍维持在6.7%不变。就业增长主要集中在服务业，而商品生产部门则出现下滑。</p>
+<div class="article-source">🔗 <a href="https://ici.radio-canada.ca/rci/zh-hant/%E6%96%B0%E9%97%BB/2245222/%E5%8A%A0%E6%8B%BF%E5%A4%A7-3%E6%9C%88-%E5%A4%B1%E4%B8%9A%E7%8E%87%E4%B8%8D%E8%AE%8A" target="_blank">https://ici.radio-canada.ca/rci/zh-hant/%E6%96%B0%E9%97%BB/2...</a></div>
+</div>
+<div class="article-card"><h3 class="article-title">埃德蒙顿公交车票诈骗案：不法分子利用未注册Arc卡骗取4.5万加元</h3>
+<div class="article-meta"><strong>来源</strong>: Edmonton Journal</div>
+<p class="article-desc">埃德蒙顿警方正在调查一起公交车票诈骗案，不法分子利用未注册的Arc卡骗取了市政府约4.5万加元。这起案件暴露了公共交通支付系统的安全漏洞。</p>
+<div class="article-source">🔗 <a href="https://edmontonjournal.com/news/local-news/edmonton-bus-bandits-45000-transit-arc-cards" target="_blank">https://edmontonjournal.com/news/local-news/edmonton-bus-ban...</a></div>
+<p class="article-desc">*由 Krowbat 自动生成 | 2026-04-11*</p>
+</div>
+<div class="footer"><p>由 Krowbat 自动生成</p></div></body></html>
